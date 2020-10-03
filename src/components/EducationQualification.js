@@ -1,4 +1,5 @@
 import React, { useReducer } from "react";
+import { NavLink } from "react-router-dom";
 
 let initialState = {
   school: "",
@@ -45,6 +46,12 @@ function EducationQualification() {
           dispatch({ type: "postGraduation", payload: e.target.value })
         }
       />
+      <NavLink to="/form/personalInfo">
+        <button>Back</button>
+      </NavLink>
+      <NavLink to="/form/notification">
+        <button>Next</button>
+      </NavLink>
     </div>
   );
 }

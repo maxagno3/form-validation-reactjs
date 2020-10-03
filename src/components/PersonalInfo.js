@@ -1,4 +1,5 @@
 import React, { useReducer } from "react";
+import { NavLink } from "react-router-dom";
 
 // no vaildation for selecting country.
 // zipcode must be 6 digits.
@@ -78,6 +79,12 @@ function PersonalInfo() {
         <option>Kerala</option>
         <option>Goa</option>
       </select>
+      <NavLink to="/form/profile">
+        <button>Back</button>
+      </NavLink>
+      <NavLink to="/form/educationQualification">
+        <button>Next</button>
+      </NavLink>
     </div>
   );
 }
