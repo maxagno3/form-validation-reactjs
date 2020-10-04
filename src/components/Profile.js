@@ -1,5 +1,4 @@
 import React, { useReducer } from "react";
-import { NavLink } from "react-router-dom";
 
 // username - must contain atleast 6 characters and must not contain any numbers and must be lowercase.
 // bio - must be atleast 150 characters.
@@ -56,11 +55,22 @@ const errorReducer = (errorState, action) => {
   }
 };
 
-function Profile() {
+function Profile({ nextStep }) {
   const [state, dispatch] = useReducer(reducer, intialState);
   const [errorMessage, setErrorMessage] = useReducer(errorReducer, errorState);
 
-  const handleNext = () => {
+  const userError = async () => {
+    // Length is less than 6 letters
+    if (state.username.length < 6) {
+      setErrorMessage({
+        type: "usernameError",
+        payload: "Must be atleast 6 characters",
+      });
+    }
+  };
+
+  const errorBio = () => {
+    // Length is less than 150 characters
     if (state.bio.length < 150) {
       setErrorMessage({
         type: "bioError",
@@ -68,8 +78,22 @@ function Profile() {
       });
     }
 
+    // Field is empty.
+    if (!state.bio) {
+      setErrorMessage({
+        type: "bioError",
+        payload: "Field cannot be empty",
+      });
+    }
+  };
+
+  const emailError = () => {
+    // Does not include @
     if (!state.emailId.includes("@")) {
-      setErrorMessage({ type: "emailError", payload: "e-mail must contain @" });
+      setErrorMessage({
+        type: "emailError",
+        payload: "e-mail must contain @",
+      });
     } else if (!state.emailId.endsWith(".com")) {
       setErrorMessage({
         type: "emailError",
@@ -77,16 +101,60 @@ function Profile() {
       });
     }
 
-    if (!state.phoneNumber.startsWith("7" || "8")) {
+    // Field is empty.
+    if (!state.emailId) {
+      setErrorMessage({
+        type: "emailError",
+        payload: "Field cannot be empty",
+      });
+    }
+  };
+
+  const numberError = () => {
+    // Starts with.
+    if (
+      !state.phoneNumber[0] === 7 ||
+      !state.phoneNumber[0] === 8 ||
+      !state.phoneNumber[0] === 9
+    ) {
       setErrorMessage({
         type: "phoneNumberError",
-        payload: "Phone number must start with 7 or 8",
+        payload: "Phone number must start with 7, 8 or 9",
       });
-    } else if (!state.phoneNumber.length < 10) {
+    }
+
+    // Length.
+    if (state.phoneNumber.length !== 10) {
       setErrorMessage({
         type: "phoneNumberError",
         payload: "Phone number must be of 10 digits",
       });
+    } else if (!state.phoneNumber) {
+      setErrorMessage({
+        type: "phoneNumber",
+        payload: "Field cannot be empty",
+      });
+    }
+  };
+
+  const handleNext = () => {
+    userError();
+    errorBio();
+    emailError();
+    numberError();
+    validate();
+  };
+
+  const validate = () => {
+    if (
+      state.usernameError &&
+      state.emailError &&
+      state.bioError &&
+      state.phoneNumberError
+    ) {
+      nextStep();
+    } else {
+      return;
     }
   };
 
@@ -102,6 +170,7 @@ function Profile() {
         }
       />
       {errorMessage.usernameError ? <h4>{errorMessage.usernameError}</h4> : ""}
+
       <input
         type="text"
         name="bio"
@@ -110,6 +179,7 @@ function Profile() {
         onChange={(e) => dispatch({ type: "bio", payload: e.target.value })}
       />
       {errorMessage.bioError ? <h4>{errorMessage.bioError}</h4> : ""}
+
       <input
         type="email"
         name="emailId"
@@ -118,8 +188,9 @@ function Profile() {
         onChange={(e) => dispatch({ type: "emailId", payload: e.target.value })}
       />
       {errorMessage.emailError ? <h4>{errorMessage.emailError}</h4> : ""}
+
       <input
-        type="number"
+        type="text"
         name="phoneNumber"
         value={state.phoneNumber}
         placeholder="Enter valid 10 digit phone number"
@@ -134,11 +205,6 @@ function Profile() {
       )}
 
       <button onClick={handleNext}>Next</button>
-      {!state.username && !state.emailId && !state.bio && !state.phoneNumber ? (
-        <h4>Cannot proceed with empty form</h4>
-      ) : (
-        ""
-      )}
     </div>
   );
 }
